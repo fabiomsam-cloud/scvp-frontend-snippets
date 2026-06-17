@@ -117,8 +117,14 @@
       if (a.href.indexOf('pay.hub.la') === -1) return;
       e.preventDefault();
       e.stopPropagation();
+      // Preserva as UTMs do visitante no redirect pro checkout da Hubla
+      var href = a.href;
+      var qs = window.location.search;
+      if (qs && qs.length > 1) {
+        href += (href.indexOf('?') === -1 ? '?' : '&') + qs.substring(1);
+      }
       setTimeout(function() {
-        checkoutUrl = a.href;
+        checkoutUrl = href;
         openModal();
       }, 10);
     }, true);
