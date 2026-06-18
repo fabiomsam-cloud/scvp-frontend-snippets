@@ -92,8 +92,17 @@
       page_title: document.title
     };
 
+    // Pre-preenche o checkout da Hubla com os dados capturados (name, email, phonenumber)
+    var prefill = '';
+    if (checkoutUrl) {
+      prefill = (checkoutUrl.indexOf('?') === -1 ? '?' : '&') +
+        'name=' + encodeURIComponent(n.value.trim()) +
+        '&email=' + encodeURIComponent(email) +
+        '&phonenumber=' + encodeURIComponent(digits);
+    }
+
     function go() {
-      if (checkoutUrl) { window.location.href = checkoutUrl; }
+      if (checkoutUrl) { window.location.href = checkoutUrl + prefill; }
       else { closeModal(); }
     }
 
