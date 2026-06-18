@@ -9,7 +9,7 @@
   // ---- 2) Injeta HTML do modal no body ----
   function buildModal() {
     var wrap = document.createElement('div');
-    wrap.innerHTML = '<div class="scvpM-ov" id="scvpMov"><div class="scvpM-box"><div class="scvpM-head"><button type="button" class="scvpM-x" id="scvpMxBtn" aria-label="Fechar">&times;</button><h3>Falta pouco para garantir sua vaga!</h3><p>Preencha seus dados para continuar para o checkout seguro</p></div><div class="scvpM-body"><form id="scvpMform" novalidate><label for="scvpMnome">Nome completo *</label><input type="text" id="scvpMnome" required autocomplete="name" placeholder="Seu nome completo"><label for="scvpMwhats">WhatsApp (com DDD) *</label><input type="tel" id="scvpMwhats" required autocomplete="tel" placeholder="(92) 99999-9999" maxlength="15" inputmode="numeric"><button type="submit" class="scvpM-btn" id="scvpMbtn">Continuar para o checkout &rarr;</button><p class="scvpM-note">&#128274; Seus dados estao protegidos. Ao continuar, voce concorda em receber contato da nossa equipe.</p></form></div></div></div>';
+    wrap.innerHTML = '<div class="scvpM-ov" id="scvpMov"><div class="scvpM-box"><div class="scvpM-head"><button type="button" class="scvpM-x" id="scvpMxBtn" aria-label="Fechar">&times;</button><h3>Falta pouco para garantir sua vaga!</h3><p>Preencha seus dados para continuar para o checkout seguro</p></div><div class="scvpM-body"><form id="scvpMform" novalidate><label for="scvpMnome">Nome completo *</label><input type="text" id="scvpMnome" required autocomplete="name" placeholder="Seu nome completo"><label for="scvpMemail">E-mail *</label><input type="email" id="scvpMemail" required autocomplete="email" inputmode="email" placeholder="seu@email.com"><label for="scvpMwhats">WhatsApp (com DDD) *</label><input type="tel" id="scvpMwhats" required autocomplete="tel" placeholder="(92) 99999-9999" maxlength="15" inputmode="numeric"><button type="submit" class="scvpM-btn" id="scvpMbtn">Continuar para o checkout &rarr;</button><p class="scvpM-note">&#128274; Seus dados estao protegidos. Ao continuar, voce concorda em receber contato da nossa equipe.</p></form></div></div></div>';
     document.body.appendChild(wrap.firstElementChild);
   }
 
@@ -60,12 +60,16 @@
   function submitLead(e) {
     if (e) e.preventDefault();
     var n = document.getElementById('scvpMnome');
+    var em = document.getElementById('scvpMemail');
     var w = document.getElementById('scvpMwhats');
     var b = document.getElementById('scvpMbtn');
     n.classList.remove('scvpM-err');
+    em.classList.remove('scvpM-err');
     w.classList.remove('scvpM-err');
     var valid = true;
     if (!n.value.trim() || n.value.trim().split(/\s+/).length < 2) { n.classList.add('scvpM-err'); valid = false; }
+    var email = em.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { em.classList.add('scvpM-err'); valid = false; }
     var digits = w.value.replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 11) { w.classList.add('scvpM-err'); valid = false; }
     if (!valid) return false;
@@ -76,6 +80,7 @@
     var u = getUtms();
     var payload = {
       name: n.value.trim(),
+      email: email,
       phone: digits,
       whatsapp: digits,
       utm_source: u.utm_source,
