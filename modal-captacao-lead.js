@@ -98,7 +98,7 @@
       prefill = (checkoutUrl.indexOf('?') === -1 ? '?' : '&') +
         'name=' + encodeURIComponent(n.value.trim()) +
         '&email=' + encodeURIComponent(email) +
-        '&phonenumber=' + encodeURIComponent(digits);
+        '&phonenumber=' + encodeURIComponent('+55' + digits);
     }
 
     function go() {
