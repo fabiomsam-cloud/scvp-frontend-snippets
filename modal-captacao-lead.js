@@ -124,11 +124,15 @@
   function init() {
     buildModal();
 
-    // Intercepta cliques em links para pay.hub.la
+    // Intercepta cliques em links de checkout da Hubla:
+    // pay.hub.la (checkout direto) e hub.la/r/... (link curto de rastreio)
     document.addEventListener('click', function(e) {
       var a = e.target.closest('a');
       if (!a || !a.href) return;
-      if (a.href.indexOf('pay.hub.la') === -1) return;
+      var host = (a.hostname || '').replace(/^www\./, '');
+      var ehPay = host === 'pay.hub.la';
+      var ehCurto = host === 'hub.la' && a.pathname.indexOf('/r/') === 0;
+      if (!ehPay && !ehCurto) return;
       e.preventDefault();
       e.stopPropagation();
       // Preserva as UTMs do visitante no redirect pro checkout da Hubla
