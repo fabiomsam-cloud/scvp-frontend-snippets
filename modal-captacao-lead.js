@@ -16,16 +16,57 @@
   // ---- 3) Helpers ----
   var checkoutUrl = null;
 
-  function getUtms() {
-    var p = new URLSearchParams(window.location.search);
-    return {
-      utm_source: p.get('utm_source') || '',
-      utm_medium: p.get('utm_medium') || '',
-      utm_campaign: p.get('utm_campaign') || '',
-      utm_term: p.get('utm_term') || '',
-      utm_content: p.get('utm_content') || ''
-    };
+  // Persistencia de UTMs: captura na chegada e guarda no localStorage para
+  // sobreviver a navegacao interna (a query string so existe na landing).
+  var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid'];
+  var UTM_STORE = 'scvp_utm_v1';
+  var UTM_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 dias
+
+  function captureUtms() {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      var found = {}, has = false;
+      for (var i = 0; i < UTM_KEYS.length; i++) {
+        var v = p.get(UTM_KEYS[i]);
+        if (v) { found[UTM_KEYS[i]] = v; has = true; }
+      }
+      if (has) {
+        found._ts = Date.now();
+        localStorage.setItem(UTM_STORE, JSON.stringify(found));
+      }
+    } catch (e) { /* localStorage indisponivel: segue sem persistencia */ }
   }
+
+  function getUtms() {
+    var out = { utm_source: '', utm_medium: '', utm_campaign: '', utm_term: '', utm_content: '', fbclid: '' };
+    var i, v;
+    // 1) Base: o que foi persistido na chegada (sobrevive a navegacao)
+    try {
+      var raw = localStorage.getItem(UTM_STORE);
+      if (raw) {
+        var saved = JSON.parse(raw);
+        if (saved && saved._ts && (Date.now() - saved._ts) < UTM_TTL_MS) {
+          for (i = 0; i < UTM_KEYS.length; i++) {
+            if (saved[UTM_KEYS[i]]) out[UTM_KEYS[i]] = saved[UTM_KEYS[i]];
+          }
+        } else {
+          localStorage.removeItem(UTM_STORE);
+        }
+      }
+    } catch (e) { /* segue sem persistencia */ }
+    // 2) URL atual sempre ganha (visita nova com UTM fresca)
+    try {
+      var p = new URLSearchParams(window.location.search);
+      for (i = 0; i < UTM_KEYS.length; i++) {
+        v = p.get(UTM_KEYS[i]);
+        if (v) out[UTM_KEYS[i]] = v;
+      }
+    } catch (e) { }
+    return out;
+  }
+
+  // Captura imediata, em QUALQUER pagina onde o script carregar
+  captureUtms();
 
   function maskPhone(v) {
     v = v.replace(/\D/g, '');
@@ -88,6 +129,7 @@
       utm_campaign: u.utm_campaign,
       utm_term: u.utm_term,
       utm_content: u.utm_content,
+      fbclid: u.fbclid,
       origin_url: window.location.href,
       page_title: document.title
     };
@@ -122,6 +164,9 @@
 
   // ---- 4) Inicializacao ----
   function init() {
+    // O modal so existe nas paginas de curso; a captura de UTM (acima) roda
+    // em qualquer pagina onde o script for carregado.
+    if (window.location.pathname.indexOf('/cursos/ver/') !== 0) return;
     buildModal();
 
     // Intercepta cliques em links de checkout da Hubla:
@@ -136,10 +181,17 @@
       e.preventDefault();
       e.stopPropagation();
       // Preserva as UTMs do visitante no redirect pro checkout da Hubla
+      // (query atual + UTMs persistidas no localStorage, sem duplicar)
       var href = a.href;
-      var qs = window.location.search;
-      if (qs && qs.length > 1) {
-        href += (href.indexOf('?') === -1 ? '?' : '&') + qs.substring(1);
+      var merged;
+      try { merged = new URLSearchParams(window.location.search); } catch (err) { merged = null; }
+      if (merged) {
+        var u2 = getUtms();
+        for (var k = 0; k < UTM_KEYS.length; k++) {
+          if (!merged.get(UTM_KEYS[k]) && u2[UTM_KEYS[k]]) merged.set(UTM_KEYS[k], u2[UTM_KEYS[k]]);
+        }
+        var qs = merged.toString();
+        if (qs) href += (href.indexOf('?') === -1 ? '?' : '&') + qs;
       }
       setTimeout(function() {
         checkoutUrl = href;
