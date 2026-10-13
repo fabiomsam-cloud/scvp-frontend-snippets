@@ -39,7 +39,7 @@ Console: `scvpBlackPopup.open()` abre na hora · `scvpBlackPopup.reset()` zera a
 Mesmo visual, só roda com `window.thinkrLogged == 1` (o template Thinkr expõe `thinkrLogged`,
 `thinkrName`, `thinkrEmail`). Nome e e-mail vêm do login; o aluno informa só o WhatsApp.
 Live dos alunos 27/10/2026 20h Brasília. Slug `black-revolucao-alunos` (sem pixel, `aluno_mentoria=sim`,
-`utm_content=popup-alunos`) → grupo Sendflow ALUNOS. Fechou → volta em 24 h; cadastrou → nunca mais
+`utm_content=popup-alunos`) → grupo Sendflow ALUNOS. Abre em TODA página até cadastrar (fechar não desliga); cadastrou → nunca mais
 (`scvp_black_pop_alunos_v1`). Copy não cita produto/preço (regra do agente black_alunos).
 Console: `scvpBlackPopupAlunos.open()` · `scvpBlackPopupAlunos.reset()`.
 

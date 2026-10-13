@@ -4,7 +4,8 @@
  * Regras:
  *  - Só roda quando window.thinkrLogged == 1 (o template Thinkr expõe thinkrLogged / thinkrName / thinkrEmail)
  *  - Nome e e-mail vêm do login: o aluno só informa o WhatsApp (e-mail aparece só se o login não trouxer)
- *  - Abre 2 s depois da página carregar. Fechou sem cadastrar → volta em 24 h. Cadastrou → nunca mais
+ *  - Abre 2 s depois de CADA página carregar, até o aluno se cadastrar (regra do Fábio 13/10: insistir).
+ *    Fechou sem cadastrar → volta na próxima página. Cadastrou → nunca mais
  *  - Cadastro = edge gerador-paginas, slug black-revolucao-alunos (sem pixel, aluno_mentoria = sim)
  *  - Copy segue a regra do agente black_alunos: NUNCA cita produto, preço ou condição. Só "revolução nos estudos"
  *  - Depois do cadastro mostra o passo 2: grupo dos alunos (link da live de 27/10 só no grupo)
@@ -18,7 +19,6 @@
   var SLUG = "black-revolucao-alunos";
   var GRUPO = "https://sndflw.com/i/4OSYf8OR5Ac5eJh0UGBk";       /* fallback: release BLACK · ALUNOS */
   var STORE = "scvp_black_pop_alunos_v1";
-  var HORAS_REAPARECER = 24;
   var DELAY_MS = 2000;
   var SKIP_PATHS = ["/admin", "/checkout", "/carrinho"];
   var LIVE_LABEL = "27 DE OUTUBRO · 20H BRASÍLIA · AO VIVO";
@@ -29,10 +29,7 @@
   function store() { try { return JSON.parse(localStorage.getItem(STORE) || "null") || {}; } catch (_) { return {}; } }
   function save(o) { try { localStorage.setItem(STORE, JSON.stringify(o)); } catch (_) {} }
   function podeAbrir() {
-    var s = store();
-    if (s.done) return false;
-    if (s.closedAt && Date.now() - s.closedAt < HORAS_REAPARECER * 3600000) return false;
-    return true;
+    return !store().done; /* só o cadastro desliga; fechar não desliga */
   }
   function nomeLogin() { return String(window.thinkrName || "").trim().slice(0, 120); }
   function emailLogin() { return String(window.thinkrEmail || "").trim().toLowerCase().slice(0, 160); }
