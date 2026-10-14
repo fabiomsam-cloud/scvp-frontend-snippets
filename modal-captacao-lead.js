@@ -65,6 +65,22 @@
     return out;
   }
 
+  // Monta a URL do checkout: a UTM do visitante (URL atual ou guardada) SUBSTITUI a utm_* fixa do link
+  // (ex.: utm_source=site). Sem UTM do visitante, o link fica como esta = venda organica.
+  // 14/10/2026: antes a UTM era acrescentada e a Hubla via utm_source duas vezes (a fixa ganhava).
+  function mergeCheckoutUrl(href, utms) {
+    var temUtm = false, k;
+    for (k = 0; k < UTM_KEYS.length; k++) if (utms[UTM_KEYS[k]]) { temUtm = true; break; }
+    if (!temUtm) return href;
+    try {
+      var u = new URL(href);
+      for (k = 0; k < UTM_KEYS.length; k++) {
+        if (utms[UTM_KEYS[k]]) { u.searchParams.delete(UTM_KEYS[k]); u.searchParams.set(UTM_KEYS[k], utms[UTM_KEYS[k]]); }
+      }
+      return u.toString();
+    } catch (e) { return href; }
+  }
+
   // Captura imediata, em QUALQUER pagina onde o script carregar
   captureUtms();
 
@@ -182,17 +198,7 @@
       e.stopPropagation();
       // Preserva as UTMs do visitante no redirect pro checkout da Hubla
       // (query atual + UTMs persistidas no localStorage, sem duplicar)
-      var href = a.href;
-      var merged;
-      try { merged = new URLSearchParams(window.location.search); } catch (err) { merged = null; }
-      if (merged) {
-        var u2 = getUtms();
-        for (var k = 0; k < UTM_KEYS.length; k++) {
-          if (!merged.get(UTM_KEYS[k]) && u2[UTM_KEYS[k]]) merged.set(UTM_KEYS[k], u2[UTM_KEYS[k]]);
-        }
-        var qs = merged.toString();
-        if (qs) href += (href.indexOf('?') === -1 ? '?' : '&') + qs;
-      }
+      var href = mergeCheckoutUrl(a.href, getUtms());
       setTimeout(function() {
         checkoutUrl = href;
         openModal();
