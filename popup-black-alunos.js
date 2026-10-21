@@ -179,9 +179,25 @@
       });
   }
 
+  /* 21/10: antes de abrir, pergunta à edge (pelo e-mail da conta logada) se este aluno já se cadastrou —
+     o "já cadastrei" passa a valer em qualquer aparelho/navegador, não só onde ele cadastrou.
+     Se a consulta falhar ou demorar, abre do mesmo jeito (comportamento antigo). */
+  function jaCadastradoNoServidor(cb) {
+    var email = emailLogin();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || typeof fetch !== "function") { cb(false); return; }
+    var feito = false, t = setTimeout(function () { if (!feito) { feito = true; cb(false); } }, 2500);
+    fetch(API + "?op=ja_cadastrado&slug=" + encodeURIComponent(SLUG) + "&email=" + encodeURIComponent(email), { headers: headers() })
+      .then(function (r) { return r.json(); })
+      .then(function (d) { if (feito) return; feito = true; clearTimeout(t); cb(!!(d && d.cadastrado)); })
+      .catch(function () { if (feito) return; feito = true; clearTimeout(t); cb(false); });
+  }
+
   function armar() {
     if (!logged() || skipPath() || !podeAbrir()) return;
-    setTimeout(abrir, DELAY_MS);
+    jaCadastradoNoServidor(function (ja) {
+      if (ja) { save({ done: true, at: Date.now(), reg: "servidor" }); return; }
+      setTimeout(abrir, DELAY_MS);
+    });
   }
   window.scvpBlackPopupAlunos = { open: function () { if (!logged()) return; if (!ov) build(); if (!aberto) { aberto = true; ov.classList.add("on"); document.body.style.overflow = "hidden"; } }, reset: function () { try { localStorage.removeItem(STORE); } catch (_) {} } };
 
