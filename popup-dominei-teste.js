@@ -18,7 +18,10 @@
   var IMG = "https://revolucaodoestudo.com.br/assets/dominei-popup.jpg";
   var STORE = "scvp_dominei_teste_v1";
   var DELAY_MS = 2000;
-  var ONLY_PATHS = window.scvpDomineiPaths || ["/alunos"];
+  /* área do aluno do Thinkr = /cursos/interna/... (confirmado pelo Fábio 28/10); /alunos fica por compatibilidade */
+  var ONLY_PATHS = window.scvpDomineiPaths || ["/cursos/interna", "/alunos"];
+  /* ?popdominei=ver na URL abre o pop-up só para VISUALIZAR (ignora as regras de quem pode ver; o cadastro continua gateado) */
+  var VER = /[?&]popdominei=ver\b/.test(location.search);
 
   function logged() { return String(window.thinkrLogged || "0") === "1"; }
   function naArea() { var p = location.pathname; for (var i = 0; i < ONLY_PATHS.length; i++) if (p.indexOf(ONLY_PATHS[i]) === 0) return true; return false; }
@@ -133,6 +136,7 @@
   }
 
   function armar() {
+    if (VER) { setTimeout(function () { if (!ov) build(); aberto = true; ov.classList.add("on"); }, 300); return; }
     if (!logged() || !naArea() || store().done) return;
     podeMostrar(function (ok) {
       if (!ok) return;
