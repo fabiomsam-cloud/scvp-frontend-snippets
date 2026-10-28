@@ -15,7 +15,7 @@
   if (window.__scvpDomineiTeste) return; window.__scvpDomineiTeste = true;
 
   var API = "https://dqpxugdhlgafvddavzzp.supabase.co/functions/v1/dominei-popup";
-  var IMG = "https://revolucaodoestudo.com.br/assets/dominei-teste-48h.jpg";
+  var IMG = "https://revolucaodoestudo.com.br/assets/dominei-popup.jpg";
   var STORE = "scvp_dominei_teste_v1";
   var DELAY_MS = 2000;
   var ONLY_PATHS = window.scvpDomineiPaths || ["/alunos"];
@@ -35,7 +35,7 @@
   '@keyframes dmtUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}' +
   '.dmt{position:relative;width:100%;max-width:420px;max-height:calc(100vh - 32px);overflow:auto;background:#0b1116;color:#f2f6f4;border:1px solid rgba(46,240,160,.22);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 60px rgba(46,240,160,.14);animation:dmtUp .32s ease;box-sizing:border-box;text-align:center}' +
   '.dmt *{box-sizing:border-box}' +
-  '.dmt-img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:19px 19px 0 0}' +
+  '.dmt-img{display:block;width:100%;height:auto;aspect-ratio:900/697;object-fit:cover;border-radius:19px 19px 0 0}' +
   '.dmt-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.45);color:#e6ece9;font-size:22px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;z-index:2}' +
   '.dmt-in{padding:18px 22px 20px}' +
   '.dmt h3{font-family:Saira,system-ui,sans-serif;font-weight:800;font-size:22px;line-height:1.15;margin:0 0 8px;color:#fff}' +
